@@ -185,13 +185,13 @@ function renderNavUser() {
     const initials = (currentUser.firstName[0] + (currentUser.lastName?.[0] || '')).toUpperCase() || 'U';
     el.innerHTML = `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="openAccount()">
       <div class="user-avatar">${initials}</div>
-      <div style="display:flex;flex-direction:column;align-items:flex-start">
+      <div style="display:flex;flex-direction:column;align-items:flex-start" class="nav-text">
         <span style="font-size:12px;font-weight:700;color:var(--text)">${currentUser.firstName}</span>
         <span style="font-size:10px;color:var(--text3)">Account</span>
       </div>
     </div>`;
   } else {
-    el.innerHTML = `<button class="user-btn" onclick="openAuth('signin')" id="signInNavBtn">Sign In</button>`;
+    el.innerHTML = `<button class="user-btn" onclick="openAuth('signin')" id="signInNavBtn"><span class="nav-text">Sign In</span><span class="nav-icon" style="display:none">👤</span></button>`;
   }
 }
 function requireAuth(callback) {

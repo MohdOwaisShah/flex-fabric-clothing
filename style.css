@@ -2278,6 +2278,36 @@ footer {
 }
 
 @media(max-width:768px) {
+  .nav-inner {
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .nav-right {
+    gap: 8px;
+  }
+
+  .nav-text {
+    display: none !important;
+  }
+
+  .nav-icon {
+    display: inline-block !important;
+  }
+
+  .icon-btn, .user-btn {
+    padding: 8px 10px;
+  }
+
+  .icon-btn .badge {
+    top: -4px;
+    right: -4px;
+  }
+
+  .logo {
+    font-size: 24px;
+  }
+
   .nav-links {
     display: none;
   }

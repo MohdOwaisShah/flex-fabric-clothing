@@ -34,15 +34,15 @@
         <button onclick="executeSearch()">⌕</button>
       </div>
       <button class="icon-btn" onclick="openWishlist()" title="Wishlist">
-        ♡ Wishlist
+        ♡<span class="nav-text"> Wishlist</span>
         <div class="badge red" id="wishCount" style="display:none">0</div>
       </button>
       <button class="icon-btn" onclick="openCart()" title="Cart">
-        🛒 Cart
+        🛒<span class="nav-text"> Cart</span>
         <div class="badge" id="cartCount">0</div>
       </button>
       <div id="navUser">
-        <button class="user-btn" onclick="openAuth('signin')" id="signInNavBtn">Sign In</button>
+        <button class="user-btn" onclick="openAuth('signin')" id="signInNavBtn"><span class="nav-text">Sign In</span><span class="nav-icon" style="display:none">👤</span></button>
       </div>
       <button class="hamburger" onclick="openMobileNav()"><span></span><span></span><span></span></button>
     </div>
