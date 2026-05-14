@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — Flex Fabric</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  body { background: var(--bg); display: flex; flex-direction: column; min-height: 100vh; }
+  .checkout-header { padding: 24px 0; border-bottom: 1px solid var(--border); background: var(--bg2); }
+  .checkout-header .container { display: flex; justify-content: space-between; align-items: center; }
+  .checkout-header .logo { font-size: 24px; }
+  
+  .checkout-layout { display: flex; flex: 1; max-width: 1200px; margin: 0 auto; width: 100%; }
+  
+  .checkout-main { flex: 1.2; padding: 40px 4% 40px 24px; border-right: 1px solid var(--border); }
+  .checkout-sidebar { flex: 0.8; padding: 40px 24px 40px 4%; background: var(--bg2); }
+  
+  .checkout-section { margin-bottom: 40px; }
+  .checkout-section h2 { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--white); }
+  
+  .checkout-form-row { display: flex; gap: 16px; margin-bottom: 16px; }
+  .checkout-form-field { flex: 1; }
+  .checkout-input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 14px; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; }
+  .checkout-input:focus { border-color: var(--accent); }
+  
+  .payment-box { border: 1px solid var(--accent); border-radius: 4px; background: rgba(232,255,0,0.02); overflow: hidden; margin-top: 16px; }
+  .payment-box-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .payment-box-body { padding: 20px; background: var(--surface); }
+  
+  .summary-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .summary-item-img { width: 64px; height: 64px; background: var(--bg3); border-radius: 4px; position: relative; display: flex; align-items: center; justify-content: center; }
+  .summary-item-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+  .summary-item-qty { position: absolute; top: -8px; right: -8px; background: var(--text3); color: #fff; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+  .summary-item-details { flex: 1; margin: 0 16px; }
+  .summary-item-title { font-weight: 600; font-size: 14px; color: var(--text); }
+  .summary-item-meta { font-size: 12px; color: var(--text2); }
+  .summary-item-price { font-family: 'Space Mono', monospace; font-size: 14px; }
+  
+  .summary-totals { border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px; }
+  .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; color: var(--text2); }
+  .summary-row.total { font-size: 18px; color: var(--white); font-weight: 700; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px; }
+  .summary-row.total .price { color: var(--accent); font-family: 'Space Mono', monospace; font-size: 24px; }
+
+  .notice { background: rgba(255,61,0,0.1); border: 1px solid var(--accent2); padding: 12px 16px; border-radius: 4px; font-size: 13px; color: var(--accent2); margin-bottom: 24px; }
+
+  @media (max-width: 900px) {
+    .checkout-layout { flex-direction: column-reverse; }
+    .checkout-main { padding: 24px; border-right: none; }
+    .checkout-sidebar { padding: 24px; border-bottom: 1px solid var(--border); }
+  }
+
+  .success-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; text-align: center; opacity: 0; pointer-events: none; transition: opacity 0.4s; }
+  .success-overlay.show { opacity: 1; pointer-events: auto; }
+</style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<header class="checkout-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><span>FLEX</span> FABRIC</a>
+    <a href="../index.html" style="color:var(--text2); font-size:13px; text-decoration:none">← Return to Cart</a>
+  </div>
+</header>
+
+<div class="checkout-layout">
+  <div class="checkout-main">
+    <div class="notice">
+      <strong>Bogus Gateway Active:</strong> Simulate a successful payment by entering <strong>1</strong> as the Card Number.
+    </div>
+
+    <div class="checkout-section">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h2 style="margin:0">Contact</h2>
+        <span id="userEmailDisplay" style="font-size:13px;color:var(--text2)"></span>
+      </div>
+    </div>
+
+    <div class="checkout-section">
+      <h2>Delivery</h2>
+      <div class="checkout-form-row">
+        <div class="checkout-form-field">
+          <input type="text" id="chkFirst" class="checkout-input" placeholder="First name">
+        </div>
+        <div class="checkout-form-field">
+          <input type="text" id="chkLast" class="checkout-input" placeholder="Last name">
+        </div>
+      </div>
+      <div class="checkout-form-row">
+        <div class="checkout-form-field">
+          <input type="text" id="chkAddress" class="checkout-input" placeholder="Address">
+        </div>
+      </div>
+      <div class="checkout-form-row">
+        <div class="checkout-form-field">
+          <input type="text" id="chkCity" class="checkout-input" placeholder="City">
+        </div>
+        <div class="checkout-form-field">
+          <select id="chkState" class="checkout-input">
+            <option value="">State</option>
+            <option>Maharashtra</option>
+            <option>Karnataka</option>
+            <option>Delhi</option>
+            <option>Gujarat</option>
+            <option>Tamil Nadu</option>
+          </select>
+        </div>
+        <div class="checkout-form-field">
+          <input type="text" id="chkPin" class="checkout-input" placeholder="PIN code" maxlength="6">
+        </div>
+      </div>
+      
+      <div style="margin-top:24px">
+        <h3 style="font-size:16px; margin-bottom:12px">Shipping method</h3>
+        <div style="border:1px solid var(--accent); background:rgba(232,255,0,0.04); padding:16px; border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:12px">
+            <input type="radio" checked style="accent-color:var(--accent)">
+            <span>Standard Delivery <br><small style="color:var(--text2)">3 to 5 business days</small></span>
+          </div>
+          <span style="font-family:'Space Mono',monospace; font-weight:700">₹100</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="checkout-section">
+      <h2>Payment</h2>
+      <p style="font-size:13px; color:var(--text2); margin-bottom:16px">All transactions are secure and encrypted.</p>
+      
+      <div class="payment-box">
+        <div class="payment-box-header">
+          <div style="display:flex; align-items:center; gap:12px; font-weight:700">
+            <input type="radio" checked style="accent-color:var(--accent)">
+            Credit card
+          </div>
+          <div style="font-size:20px">💳</div>
+        </div>
+        <div class="payment-box-body">
+          <div class="checkout-form-row">
+            <div class="checkout-form-field">
+              <input type="text" id="chkCardNum" class="checkout-input" placeholder="Card number (Enter '1' to simulate success)">
+            </div>
+          </div>
+          <div class="checkout-form-row">
+            <div class="checkout-form-field">
+              <input type="text" id="chkCardExp" class="checkout-input" placeholder="Expiration date (MM / YY)">
+            </div>
+            <div class="checkout-form-field">
+              <input type="text" id="chkCardCvv" class="checkout-input" placeholder="Security code">
+            </div>
+          </div>
+          <div class="checkout-form-row" style="margin-bottom:0">
+            <div class="checkout-form-field">
+              <input type="text" id="chkCardName" class="checkout-input" placeholder="Name on card">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="checkoutError" style="color:var(--accent2); margin-top:16px; font-size:14px; font-weight:700; display:none"></div>
+
+      <div style="margin-top:32px; text-align:right">
+        <button id="payBtn" class="btn btn-primary" style="padding:16px 48px; font-size:16px" onclick="processPayment()">Pay Now</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="checkout-sidebar">
+    <div id="orderItems">
+      <!-- Items will be populated here -->
+    </div>
+
+    <div class="summary-totals">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="sumSubtotal" style="color:var(--text)">₹0</span>
+      </div>
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span id="sumShipping" style="color:var(--text)">₹100</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span class="price" id="sumTotal">₹0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="success-overlay" id="successOverlay">
+  <div>
+    <div style="font-size:64px; margin-bottom:16px">✅</div>
+    <h1 style="font-family:'Bebas Neue',sans-serif; font-size:48px; margin-bottom:12px; color:var(--white)">Thank You!</h1>
+    <p style="color:var(--text2); margin-bottom:32px">Your order has been placed successfully.</p>
+    <a href="../index.html" class="btn btn-primary">Return to Store</a>
+  </div>
+</div>
+
+<script src="checkout.js"></script>
+</body>
+</html>
